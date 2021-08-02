@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 
 namespace NSB.SqlServer.Installer
 {
@@ -13,11 +14,18 @@ namespace NSB.SqlServer.Installer
 
             try
             {
-                Installer.Run();
+                var connectionStringSettings = ConfigurationManager.ConnectionStrings["NServiceBus/Transport"];
+                string endpointSettings = ConfigurationManager.AppSettings.Get("EndpointNames");
+
+                var connectionString = connectionStringSettings?.ConnectionString;
+                var endpointNames = endpointSettings?.Split(',');
+                var schema = ConfigurationManager.AppSettings.Get("SqlServerSchema");
+
+                Installer.Run(connectionString, schema, endpointNames);
             }
             catch(Exception ex)
             {
-                Console.WriteLine($"ERROR - Process failed due to exception: {ex.Message}.");
+                Console.WriteLine($"ERROR - Process failed due to exception: {ex.Message}");
             }
             finally
             {
